@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import MAPBOXGL, { Marker } from 'react-map-gl';
+import axios from 'axios';
+
 
 const mapStyle = "mapbox://styles/maxcwolf/cjf3g7e8o0cyo2sputkj2u4wu";
 MAPBOXGL.accessToken = "pk.eyJ1IjoibWF4Y3dvbGYiLCJhIjoiY2pmMnZsam5mMGxtcTJ4bXF5bm13YThsOSJ9.OOXW_UllKXamqkAcYrTVMw"
@@ -19,6 +21,29 @@ class Map extends Component {
         }
     };
     
+    getPosts = () => {
+
+        console.log("FETCHING POSTS")
+        return axios({
+            "url": `http://localhost:5000/api/posts`,
+            "method": "GET",
+            'Accepts': 'application/json'
+        }).then(data => {
+            data.map((obj, index) => {
+                console.log(obj)
+                return (
+                    <Marker key={`${obj.postId}`} latitude={`${obj.lat}`} longiture={`${obj.long}`}>
+                        <img src={`${obj.photoURI}` }/>
+                        <p>{`${obj.postId}`}</p>
+                    </Marker>
+                )
+            })
+        })
+    }
+
+    componentWillMount() {
+        this.getPosts
+    }
 
     render() {
         return (
@@ -26,13 +51,10 @@ class Map extends Component {
             <MAPBOXGL
                 mapboxApiAccessToken={MAPBOXGL.accessToken}
                 mapStyle={mapStyle}
-                containerStyle={{ width: '100vw', height: '100vh' }}
                 {...this.state.viewport}
                 onViewportChange={(viewport) => this.setState({ viewport })}
             >
-                <Marker latitude={36.20317184193212} longitude={-86.7017887571744}>
-                    <div>You are here</div>
-                </Marker>
+               {this.getPosts}
             </MAPBOXGL>
 
         );
